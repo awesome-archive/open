@@ -2,7 +2,6 @@ version: '3'
 
 volumes:
   local_postgres_data: {}
-  caddy: {}
   production_traefik: {}
 
 services:
@@ -12,7 +11,8 @@ services:
       dockerfile: ./compose/production/django/Dockerfile
     image: gcr.io/proven-record-242223/open:latest
     # watch out for sequential failures, postgres will quickly lock up
-    restart: on-failure
+    # restart: on-failure
+    # restart: no
     depends_on:
       - postgres
     volumes:
@@ -28,33 +28,29 @@ services:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: open_production_postgres
+    # always keep postgres on, it's easier that way
+    restart: always
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
+      - .:/app
     env_file:
       - ./.envs/.local/.django
-
-#  caddy:
-#    build:
-#      context: .
-#      dockerfile: ./compose/local/caddy/Dockerfile
-#    depends_on:
-#      - django
-#    volumes:
-#      - caddy:/root/.caddy
-#    ports:
-#      - "2015:2015"
+    ports:
+      # 5432 is freq taken by some other instance running postgres
+      # i have too many side projects ... so i kind of have to use a random port
+      - "25432:5432"
 
   redis:
     image: redis:5.0
 
-  traefik:
-    build:
-      context: .
-      dockerfile: ./compose/production/traefik/Dockerfile
-    depends_on:
-      - django
-    ports:
-      - "0.0.0.0:80:80"
+#  traefik:
+#    build:
+#      context: .
+#      dockerfile: ./compose/production/traefik/Dockerfile
+#    depends_on:
+#      - django
+#    ports:
+#      - "0.0.0.0:80:80"
 
 #  celeryworker:
 #    <<: *django
@@ -66,24 +62,24 @@ services:
 #    ports: []
 #    command: /start-celeryworker.sh
 
-  celeryworker:
-    image: gcr.io/proven-record-242223/open:latest
-    depends_on:
-      - redis
-      - postgres
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - .:/app
-    command: /start-celeryworker.sh
-
-  celerybeat:
-    image: gcr.io/proven-record-242223/open:latest
-    depends_on:
-      - redis
-      - postgres
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - .:/app
-    command: /start-celerybeat.sh
+#  celeryworker:
+#    image: gcr.io/proven-record-242223/open:latest
+#    depends_on:
+#      - redis
+#      - postgres
+#    env_file:
+#      - ./.envs/.local/.django
+#    volumes:
+#      - .:/app
+#    command: /start-celeryworker.sh
+#
+#  celerybeat:
+#    image: gcr.io/proven-record-242223/open:latest
+#    depends_on:
+#      - redis
+#      - postgres
+#    env_file:
+#      - ./.envs/.local/.django
+#    volumes:
+#      - .:/app
+#    command: /start-celerybeat.sh

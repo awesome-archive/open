@@ -1,3 +1,5 @@
+# flake8: noqa
+
 import os
 import glob
 import json
@@ -79,7 +81,6 @@ def run():
     json_files = get_json_files()
 
     for count, file_path in enumerate(tqdm(json_files)):
-        # print (count)
         # if count > 100:
         # 	continue
 

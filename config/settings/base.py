@@ -9,6 +9,9 @@ from config.constants import LOCAL
 ROOT_DIR = environ.Path(__file__) - 3  # (open/config/settings/base.py - 3 = open/)
 APPS_DIR = ROOT_DIR.path("open")
 
+BETTERSELF_DIR = APPS_DIR.path("core/betterself/")
+WRITEUP_DIR = APPS_DIR.path("core/writeup/")
+
 env = environ.Env()
 
 ENVIRONMENT = LOCAL
@@ -316,7 +319,7 @@ REST_FRAMEWORK = {
     # anything more than five a second feels quite excessive for a human
     "DEFAULT_THROTTLE_RATES": {
         "anon": "5/second",
-        "user": "5/second",
+        "user": "25/second",
         # sure, im helping you write faster ... but 25 an hour is excessive
         "create_prompt_rate": "25/hour",
         "list_prompt_rate": "5/second",
@@ -349,7 +352,6 @@ GPT2_MEDIUM_COMPANIES_API_ENDPOINT = env(
     "GPT2_MEDIUM_COMPANIES_API_ENDPOINT", default="http://www.google.com/gpt2"
 )
 
-
 GPT2_LARGE_API_ENDPOINT = env(
     "GPT2_LARGE_API_ENDPOINT", default="https://www.google.com/gpt2"
 )
@@ -364,10 +366,15 @@ TRANSFORMERS_XL_API_ENDPOINT = env(
     default="https://www.google.com/transformers_xl_wt_103",
 )
 
-
 CORS_ORIGIN_WHITELIST = [
     "https://writeup.ai",
     "https://betterself.io",
     "https://www.betterself.io",
     "https://open.senrigan.io",
+    "https://app.betterself.io",
+    "https://betterself.io",
+    "http://localhost:5000",
+    "http://localhost:3000",
 ]
+
+BETTERSELF_PERSONAL_API_KEY = env("BETTERSELF_PERSONAL_API_KEY", default="12345")
